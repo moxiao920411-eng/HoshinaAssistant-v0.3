@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Hoshina Assistant</string>
+
+    <string name="chat_title">Hoshina Assistant</string>
+    <string name="chat_clear">清除對話</string>
+    <string name="chat_settings">設定</string>
+    <string name="chat_store">商店</string>
+    <string name="chat_toggle_theme">切換背景模式</string>
+    <string name="chat_call_mode">電話模式</string>
+    <string name="chat_message_count">%1$d 則</string>
+    <string name="chat_listening">正在聽你說話，放開麥克風送出</string>
+    <string name="chat_hold_to_speak">按住說話</string>
+    <string name="chat_input_hint">和她說點悄悄話...</string>
+    <string name="chat_send">送出</string>
+    <string name="chat_mic_permission_required">需要麥克風權限才能語音輸入。</string>
+    <string name="chat_send_failed">訊息送出失敗。</string>
+    <string name="chat_memory_loaded">已載入 %1$d 則本機訊息。</string>
+    <string name="chat_device_time">系統時間：%1$s</string>
+    <string name="chat_agent_selecting">選擇 Agent 中</string>
+    <string name="chat_agent_active">%1$s 中</string>
+    <string name="agent_daily_chat">日常對話</string>
+    <string name="agent_deep_reasoning">深度推理</string>
+    <string name="agent_emotion_analysis">情感分析</string>
+    <string name="agent_work_handler">工作處理</string>
+    <string name="agent_multimodal">多模態化</string>
+
+    <string name="call_mode_title">電話模式</string>
+    <string name="call_status_ready">點一下麥克風開始說話</string>
+    <string name="call_status_listening">正在聽你說...</string>
+    <string name="call_status_thinking">正在想怎麼回你...</string>
+    <string name="call_talk">說話</string>
+    <string name="call_end">結束通話</string>
+
+    <string name="reminder_scheduled">已安排在 %1$s 提醒：%2$s</string>
+    <string name="reminder_need_notification_permission">需要通知權限才能建立提醒。</string>
+    <string name="reminder_need_exact_alarm_permission">需要精準鬧鐘權限才能準時提醒。</string>
+    <string name="reminder_notification_title">Hoshina 提醒</string>
+    <string name="reminder_channel_description">Hoshina Assistant 的提醒通知。</string>
+
+    <string name="settings_title">設定</string>
+    <string name="settings_back">返回</string>
+    <string name="settings_language_title">介面語言</string>
+    <string name="settings_language_zh">中文</string>
+    <string name="settings_language_en">English</string>
+    <string name="settings_language_ja">日本語</string>
+    <string name="settings_ai_title">AI 個人化</string>
+    <string name="settings_ai_name_label">AI 名稱</string>
+    <string name="settings_ai_model_label">AI 模型</string>
+    <string name="settings_ai_model_placeholder">例如：deepseek-r1:8b</string>
+    <string name="settings_role_prompt_label">角色提示詞</string>
+    <string name="settings_role_prompt_placeholder">如果記憶中有相關資料，優先回答記憶中的內容。回答不超過30個字。</string>
+    <string name="settings_avatar_title">使用者頭像</string>
+    <string name="settings_avatar_upload">上傳圖片</string>
+    <string name="settings_avatar_empty">未設定</string>
+    <string name="settings_dark_mode">設定區黑暗模式</string>
+    <string name="settings_show_device_time">主畫面顯示系統時間</string>
+    <string name="settings_voice_title">語音引擎</string>
+    <string name="settings_voice_new_enabled">目前只使用新版 OmniVoice 語音。若後端失敗，不會退回舊版語音。</string>
+    <string name="settings_voice_old_enabled">目前只使用舊版 Android 系統語音。</string>
+    <string name="settings_voice_use_new">使用新版語音</string>
+    <string name="settings_api_title">後端 API 網址</string>
+    <string name="settings_api_hint">這是 FastAPI 後端網址。實機常用 http://10.128.237.121:8000/，模擬器通常用 http://10.0.2.2:8000/。</string>
+    <string name="settings_api_label">API 基礎網址</string>
+    <string name="settings_companion_debug_title">陪伴通知 Debug</string>
+    <string name="settings_companion_debug_hint">設定多久沒開啟 App 後隨機傳送通知。正式版可設為 120 到 360 分鐘。</string>
+    <string name="settings_companion_debug_min">最短分鐘</string>
+    <string name="settings_companion_debug_max">最長分鐘</string>
+    <string name="settings_companion_debug_interval_error">最短時間不能大於最長時間。</string>
+    <string name="settings_version_title">版本</string>
+    <string name="settings_version_current">目前版本：%1$s</string>
+    <string name="settings_save">儲存</string>
+    <string name="settings_api_empty">API 網址不能空白。</string>
+    <string name="settings_saved">已儲存：%1$s</string>
+    <string name="settings_save_failed">儲存失敗。</string>
+    <string name="settings_all_saved">設定與記憶已儲存。</string>
+    <string name="settings_memory_title">使用者自行新增記憶</string>
+    <string name="settings_memory_hint">手動記憶不需付費，之後對話會一起提供給 AI 參考。</string>
+    <string name="settings_memory_label">手動記憶</string>
+    <string name="settings_memory_placeholder">例如：我喜歡簡短回答。我的工作是學生。</string>
+    <string name="settings_auto_memory_title">自動記憶（付費測試）</string>
+    <string name="settings_auto_memory_enabled">已解鎖。App 會從對話中擷取重點並記在本機。</string>
+    <string name="settings_auto_memory_locked">已鎖定。輸入測試密碼後可啟用自動記憶。</string>
+    <string name="settings_auto_memory_label">自動對話記憶</string>
+    <string name="settings_auto_memory_unlock">解鎖自動記憶</string>
+    <string name="settings_auto_memory_disable">停用自動記憶</string>
+    <string name="settings_premium_password_label">測試密碼</string>
+    <string name="settings_premium_password_error">密碼錯誤。</string>
+
+    <string name="stt_error_audio">錄音錯誤。</string>
+    <string name="stt_error_client">語音辨識用戶端錯誤。</string>
+    <string name="stt_error_permissions">缺少麥克風權限。</string>
+    <string name="stt_error_network">網路錯誤。</string>
+    <string name="stt_error_network_timeout">網路逾時。</string>
+    <string name="stt_error_no_match">沒有辨識到語音。</string>
+    <string name="stt_error_busy">語音辨識忙碌中。</string>
+    <string name="stt_error_server">語音辨識伺服器錯誤。</string>
+    <string name="stt_error_speech_timeout">沒有偵測到說話。</string>
+    <string name="stt_error_unknown">未知語音辨識錯誤。</string>
+
+    <string name="error_empty_response">AI 回傳空白內容。</string>
+    <string name="error_empty_message">訊息不能空白。</string>
+    <string name="settings_backend_discovery">自動尋找後端</string>
+    <string name="settings_backend_discovery_success">找到後端：%1$s</string>
+    <string name="settings_backend_discovery_failed">找不到後端。請確認後端 BAT 正在執行、手機熱點仍連線，且 Windows 防火牆允許 8000 連接埠。</string>
+</resources>

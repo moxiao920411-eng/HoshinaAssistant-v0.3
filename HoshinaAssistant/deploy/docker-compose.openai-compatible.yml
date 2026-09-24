@@ -1,0 +1,13 @@
+services:
+  backend:
+    build:
+      context: ../backend
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    environment:
+      AI_PROVIDER: openai_compatible
+      OPENAI_COMPATIBLE_BASE_URL: ${OPENAI_COMPATIBLE_BASE_URL}
+      OPENAI_COMPATIBLE_API_KEY: ${OPENAI_COMPATIBLE_API_KEY:-}
+      OPENAI_COMPATIBLE_MODEL: ${OPENAI_COMPATIBLE_MODEL:-openai/gpt-4.1-mini}
+      CORS_ALLOW_ORIGINS: ${CORS_ALLOW_ORIGINS:-*}

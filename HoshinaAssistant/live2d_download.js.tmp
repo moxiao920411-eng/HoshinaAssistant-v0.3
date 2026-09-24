@@ -1,0 +1,426 @@
+﻿/**
+ *  Copyright(c) Live2D Inc. All rights reserved.
+ */
+
+// ベースディレクトリ。FQDNで表す。例: "https://cubism.live2d.com/sdk-web/bin/"
+let FILE_BASE_URL = "https://cubism.live2d.com/sdk-web/bin/";
+
+// ダウンロード実行するURL
+let DOWNLOAD_URL = "./sdk_dl/"
+
+// ホスティングしているCubism Core for WebのURL
+const FILE_CUBISMCORE_FILENAME = "live2dcubismcore.min.js"
+let FILE_CUBISMCORE_URL = "https://cubism.live2d.com/sdk-web/cubismcore/" + FILE_CUBISMCORE_FILENAME
+
+window.addEventListener("load", () => {
+
+    const USER_STATUS = {
+        install: "new",
+        update: "update"
+    }
+    const USER_TYPE = {
+        individual: "個人",
+        enterprise: "法人"
+    }
+
+    const LATEST_VERSION_KEY_NAME = '5-r.5';
+    const LATEST_BETA_VERSION_KEY_NAME = '';
+
+    const NOTICE = ``
+
+    // 登録しているファイルのリスト
+    /*
+        {ID名}: {                                       // ファイルを表すID名。
+            date: "2019/04/24",                         // 更新日時。
+            size: "24.5MB",                             // ファイルサイズ。
+            version: "beta1",                           // ファイルのリビジョン。例: beta1, R1
+            url: "CubismSdkForWeb-3-r.1.zip"            // ファイルのURL。
+        }
+    */
+        const fileDataArray = {
+        '5-r.5': {
+            date: "2026-04-02",
+            version: "Cubism 5 SDK for Web R5",
+            url: "CubismSdkForWeb-5-r.5.zip",
+        },
+        '5-r.5-beta.3.1': {
+            date: "2026-02-19",
+            version: "Cubism 5 SDK for Web R5 beta3_1",
+            url: "CubismSdkForWeb-5-r.5-beta.3.1.zip",
+        },
+        '5-r.5-beta.3': {
+            date: "2026-01-29",
+            version: "Cubism 5 SDK for Web R5 beta3",
+            url: "CubismSdkForWeb-5-r.5-beta.3.zip",
+        },
+        '5-r.5-beta.2': {
+            date: "2025-10-14",
+            version: "Cubism 5 SDK for Web R5 beta2",
+            url: "CubismSdkForWeb-5-r.5-beta.2.zip",
+        },
+        '5-r.5-beta.1': {
+            date: "2025-08-26",
+            version: "Cubism 5 SDK for Web R5 beta1",
+            url: "CubismSdkForWeb-5-r.5-beta.1.zip",
+        },
+        '5-r.4': {
+            date: "2025-05-15",
+            version: "Cubism 5 SDK for Web R4",
+            url: "CubismSdkForWeb-5-r.4.zip",
+        },
+        '5-r.3': {
+            date: "2025-02-18",
+            version: "Cubism 5 SDK for Web R3",
+            url: "CubismSdkForWeb-5-r.3.zip",
+        },
+        '5-r.2': {
+            date: "2024-12-19",
+            version: "Cubism 5 SDK for Web R2",
+            url: "CubismSdkForWeb-5-r.2.zip",
+        },
+        '5-r.1': {
+            date: "2024-03-26",
+            version: "Cubism 5 SDK for Web R1",
+            url: "CubismSdkForWeb-5-r.1.zip",
+        },
+
+        '5-r.1-beta.4': {
+            date: "2024-01-18",
+            version: "Cubism 5 SDK for Web R1 beta4",
+            url: "CubismSdkForWeb-5-r.1-beta.4.zip",
+        },
+
+        '5-r.1-beta.3': {
+            date: "2023-11-30",
+            version: "Cubism 5 SDK for Web R1 beta3",
+            url: "CubismSdkForWeb-5-r.1-beta.3.zip",
+        },
+
+        '5-r.1-beta.2': {
+            date: "2023-09-28",
+            version: "Cubism 5 SDK for Web R1 beta2",
+            url: "CubismSdkForWeb-5-r.1-beta.2.zip",
+        },
+
+        '5-r.1-beta.1': {
+            date: "2023-08-17",
+            version: "Cubism 5 SDK for Web R1 beta1",
+            url: "CubismSdkForWeb-5-r.1-beta.1.zip",
+        },
+
+        '4-r.7': {
+            date: "2023-05-25",
+            version: "Cubism 4 SDK for Web R7",
+            url: "CubismSdkForWeb-4-r.7.zip",
+        },
+
+        '4-r.6.2': {
+            date: "2023-03-16",
+            version: "Cubism 4 SDK for Web R6_2",
+            url: "CubismSdkForWeb-4-r.6.2.zip",
+        },
+
+        '4-r.6.1': {
+            date: "2023-03-10",
+            version: "Cubism 4 SDK for Web R6_1",
+            url: "CubismSdkForWeb-4-r.6.1.zip",
+        },
+
+        '4-r.6': {
+            date: "2023-02-21",
+            version: "Cubism 4 SDK for Web R6",
+            url: "CubismSdkForWeb-4-r.6.zip",
+        },
+
+        '4-r.5': {
+            date: "2022-09-08",
+            version: "Cubism 4 SDK for Web R5",
+            url: "CubismSdkForWeb-4-r.5.zip",
+        },
+
+        '4-r.5-beta.5': {
+            date: "2022-08-04",
+            version: "Cubism 4 SDK for Web R5 beta5",
+            url: "CubismSdkForWeb-4-r.5-beta.5.zip",
+        },
+
+        '4-r.5-beta.4': {
+            date: "2022-07-07",
+            version: "Cubism 4 SDK for Web R5 beta4",
+            url: "CubismSdkForWeb-4-r.5-beta.4.zip",
+        },
+
+        '4-r.5-beta.3': {
+            date: "2022-06-16",
+            version: "Cubism 4 SDK for Web R5 beta3",
+            url: "CubismSdkForWeb-4-r.5-beta.3.zip",
+        },
+
+        '4-r.5-beta.2': {
+            date: "2022-06-02",
+            version: "Cubism 4 SDK for Web R5 beta2",
+            url: "CubismSdkForWeb-4-r.5-beta.2.zip",
+        },
+
+        '4-r.5-beta.1': {
+            date: "2022-05-19",
+            version: "Cubism 4 SDK for Web R5 beta1",
+            url: "CubismSdkForWeb-4-r.5-beta.1.zip",
+        },
+
+        '4-r.4': {
+            date: "2021-12-09",
+            version: "Cubism 4 SDK for Web R4",
+            url: "CubismSdkForWeb-4-r.4.zip",
+        },
+
+        '4-r.3': {
+            date: "2021-06-10",
+            version: "Cubism 4 SDK for Web R3",
+            url: "CubismSdkForWeb-4-r.3.zip",
+        },
+
+        '4-r.3-beta.1': {
+            date: "2021-05-13",
+            version: "Cubism 4 SDK for Web R3 Beta1",
+            url: "CubismSdkForWeb-4-r.3-beta.1.zip",
+        },
+
+        '4-r.2': {
+            date: "2021-03-09",
+            version: "Cubism 4 SDK for Web R2",
+            url: "CubismSdkForWeb-4-r.2.zip",
+        },
+
+        '4-r.1': {
+            date: "2020-01-30",
+            version: "Cubism 4 SDK for Web R1",
+            url: "CubismSdkForWeb-4-r.1.zip",
+        },
+
+        '4-beta.2': {
+            date: "2019-11-14",
+            version: "Cubism 4 SDK for Web beta2",
+            url: "CubismSdkForWeb-4-beta.2.zip",
+        },
+
+        '4-beta.1': {
+            date: "2019-09-04",
+            version: "Cubism 4 SDK for Web beta1",
+            url: "CubismSdkForWeb-4-beta.1.zip",
+        },
+    }
+
+    // -----------------------------
+
+    //==============ダウンロードリンクの有効無効制御===============
+    let isMailValid = false;
+    let dltype = "";
+    let usertype = "";
+    const isInstall = () => dltype === "install"
+    const isUpdate = () => dltype === "update"
+
+    // 言語設定
+    const editorLang = getLanguageCode(document.documentElement.lang)
+    let manualLang = ""
+    if (editorLang == "zh") {
+        manualLang = "zh-CHS/"
+    } else if (editorLang != "jp") {
+        manualLang = editorLang + "/"
+    }
+
+    // 更新履歴・Update Hisrotyのhtmlを自動生成
+    // 「更新履歴」の文言は、元々の p タグに要素として埋め込まれている。各言語ごとに存在するので、都度参照し設定する。
+    const historyUrl = `https://docs.live2d.com/${manualLang}cubism-sdk-manual/cubism-sdk-for-web/#changelog`
+    if (LATEST_VERSION_KEY_NAME != "")
+    {
+        let updateHistoryText = $("#update_history").text();
+        setText("update_history", `<a href="${historyUrl}">${updateHistoryText}</a>  [${getLatestFileInformation('date')}] ${getLatestFileInformation('version')}`);
+        setText("notice", NOTICE)
+    }
+
+    if (LATEST_BETA_VERSION_KEY_NAME != "")
+    {
+        let updateHistoryBetaText = $("#update_history_beta").text();
+        setText("update_history_beta", `<a href="${historyUrl}">${updateHistoryBetaText}</a>  [${getLatestBetaFileInformation('date')}] ${getLatestBetaFileInformation('version')}`);
+    }
+
+    function getLatestFileInformation(key) {
+        return fileDataArray[LATEST_VERSION_KEY_NAME][key];
+    }
+
+    function getLatestBetaFileInformation(key) {
+        return fileDataArray[LATEST_BETA_VERSION_KEY_NAME][key];
+    }
+
+     // 画面イベントの設定
+     getField("change").addEventListener("change", e => fieldChanged(e), false)
+    const update = getField("update")
+    update.addEventListener("change", e => fieldChanged(e), false)
+    update.checked = true
+    getField("firstdl").addEventListener("change", e => fieldChanged(e), false)
+
+    const usertypes = Array.from(document.getElementsByName("usertype"))
+    usertypes.forEach(elm =>
+        elm.addEventListener("change", () => userTypeFieldChanged(), false)
+    )
+
+    function userTypeFieldChanged() {
+        const usertypeElm = usertypes.find(elm => elm.checked)
+        usertype = (usertypeElm != null) ? usertypeElm.value : ""
+    }
+
+    // メールアドレス入力情報を取得
+    const $mailForm = $('#mc-embedded-subscribe-form');
+    const email_entry = getField("mce-EMAIL");
+    $mailForm.validate({
+        rules: {
+            EMAIL: {
+                required: false
+            }
+        },
+        onkeyup: function(b, c) {
+            if($mailForm.valid() && email_entry.value !== "") {
+                mailValidSuccess();
+            }else{
+                mailInvalid();
+            }
+
+            fieldChanged();
+        },
+        success: function(label) {
+            mailValidSuccess();
+        },
+        errorPlacement: function(form, validator){
+            mailInvalid();
+        }
+    });
+
+    function mailValidSuccess() {
+        isMailValid = true;
+    }
+
+    function mailInvalid() {
+        isMailValid = false;
+    }
+
+    // フォームのEnable/Disableの初期化
+    fieldChanged();
+
+    // フィールドが変更された場合に処理する関数
+    function fieldChanged(event) {
+        const isAgreementChecked = document.forms.agreement.accept.checked;
+
+        const dltypes = Array.from(document.getElementsByName("dltype"))
+        dltype = dltypes.find(elm => elm.checked).value
+
+        const requireMailAdress = isAgreementChecked && isInstall()
+        email_entry.disabled = !requireMailAdress
+        usertypes.forEach(elm => elm.disabled = !requireMailAdress)
+
+        if (isInstall()) {
+            // 「初めてダウンロードする」に切り替えたときだけ個人法人のラジオボタンに初期値をセット
+            if(event != null && (event.target.id === "firstdl" || event.target.for === "firstdl")) {
+                getField("individual").checked = true
+                userTypeFieldChanged()
+            }
+            $("#usertype_select").show()
+            $('#mc-embedded-subscribe-form').show()
+        } else if (isUpdate()) {
+            // 入力の初期化
+            usertypes.forEach(elm => elm.checked = false)
+            email_entry.value = ""
+            isMailValid = false
+            $("#usertype_select").hide()
+            $('#mc-embedded-subscribe-form').hide()
+        }
+
+        const accept_win = getField("accept_win");
+        const accept_beta_win = getField("accept_beta");
+        const accept_core = getField("accept_cubismcore");
+
+        if(isAgreementChecked){
+            dltypes.forEach(elm => elm.disabled = false)
+            if (isUpdate() || (isInstall() && isMailValid)) {
+                activateDlButton()
+            } else {
+                deactivateDlButton()
+            }
+        } else {
+            dltypes.forEach(elm => elm.disabled = true)
+            deactivateDlButton()
+        }
+
+        if (LATEST_VERSION_KEY_NAME == "") {
+            accept_win.setAttribute("disabled", "disabled")
+            setText("update_history", "")
+            setText("notice", "")
+        }
+
+        if (LATEST_BETA_VERSION_KEY_NAME == "") {
+            accept_beta.setAttribute("disabled", "disabled")
+            setText("update_history_beta", "")
+        }
+
+        function activateDlButton() {
+            // DLボタンを表示
+            accept_win.disabled = false
+            accept_beta_win.disabled = false
+            accept_core.disabled = false
+            setText("url_cubismcore", FILE_CUBISMCORE_URL)
+        }
+        function deactivateDlButton(){
+            // DLボタンを非表示
+            accept_win.disabled = true
+            accept_beta_win.disabled = true
+            accept_core.disabled = true
+            setText("url_cubismcore", "")
+        }
+    }
+
+    // SDKパッケージのダウンロードボタンの設定。
+    getField("accept_win").addEventListener("click", function() {
+        execDownload(LATEST_VERSION_KEY_NAME, "Web")
+    })
+    getField("accept_beta").addEventListener("click", function() {
+        execDownload(LATEST_BETA_VERSION_KEY_NAME, "Web")
+    })
+
+    // ホスティングしているCubism Core for Webのダウンロードボタンの設定。
+    getField("accept_cubismcore").addEventListener("click", function() {
+        execDownload("CubismCoreForWeb", "CoreforWeb")
+    })
+    function execDownload(latestVersionKeyName, sdkType) {
+        // GAパラメータ送信
+        const gaParam = {
+            'event': 'cubism_sdk_download',
+            'sdk_type': sdkType,
+            'user_status': USER_STATUS[dltype],
+            'user_type': isInstall() ? USER_TYPE[usertype] : "",
+            'version': latestVersionKeyName
+        }
+        sendGA(gaParam);
+
+        const logParam = [
+            'event=cubism_sdk_download',
+            'sdk_type=' + sdkType,
+            'user_status=' + USER_STATUS[dltype],
+            'user_type=' + (isInstall() ? USER_TYPE[usertype] : ""),
+            'version=' + latestVersionKeyName,
+            'lang=' + document.documentElement.lang,
+        ]
+
+        // ダウンロード実行
+        let url = (sdkType == "Web") ? genFileURL(latestVersionKeyName) : FILE_CUBISMCORE_URL
+        url += `?${logParam.join('&')}`
+
+        const isAsync = (sdkType == "CoreforWeb") ? "&async=true" : ""
+        location.href = DOWNLOAD_URL + "?url=" + encodeURIComponent(url) + isAsync
+
+        // ダウンロードファイルのURLを生成する。
+        function genFileURL(fileName) {
+            return FILE_BASE_URL + fileDataArray[fileName]['url'];
+        }
+    }
+}, false)
+
