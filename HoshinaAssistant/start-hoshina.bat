@@ -55,10 +55,16 @@ if "!OLLAMA_READY!"=="0" (
 echo Ollama API is ready.
 
 echo [2/2] Starting FastAPI backend...
-start "Hoshina Backend" /d "%BACKEND_DIR%" cmd.exe /k ""%PYTHON_EXE%" -m uvicorn main:app --reload --host 0.0.0.0 --port 8000"
-
 set "BACKEND_READY=0"
-for /l %%N in (1,1,10) do (
+curl.exe --silent --max-time 2 http://localhost:8000/agents >nul 2>&1
+if not errorlevel 1 (
+  set "BACKEND_READY=1"
+  echo FastAPI backend is already running.
+)
+
+if "!BACKEND_READY!"=="0" start "Hoshina Backend" /d "%BACKEND_DIR%" cmd.exe /k ""%PYTHON_EXE%" -m uvicorn main:app --host 0.0.0.0 --port 8000"
+
+if "!BACKEND_READY!"=="0" for /l %%N in (1,1,15) do (
   curl.exe --silent --max-time 1 http://localhost:8000/agents >nul 2>&1
   if not errorlevel 1 set "BACKEND_READY=1"
   if "!BACKEND_READY!"=="1" goto backend_ready

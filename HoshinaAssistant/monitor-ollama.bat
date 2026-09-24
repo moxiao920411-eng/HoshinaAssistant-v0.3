@@ -8,11 +8,16 @@ rem Keep this window open while you want Ollama to be monitored.
 set "OLLAMA_HOST=http://127.0.0.1:11434"
 set "OLLAMA_MODELS=D:\OllamaModels"
 set "OLLAMA_LLM_LIBRARY=vulkan"
+set "OLLAMA_VULKAN=1"
 set "GGML_VK_VISIBLE_DEVICES=1"
 set "OLLAMA_FLASH_ATTENTION=0"
+set "OLLAMA_CONTEXT_LENGTH=2048"
+set "OLLAMA_NUM_PARALLEL=1"
 set "CHECK_INTERVAL=15"
 set "FAIL_LIMIT=2"
-set "START_GUI=1"
+rem The Ollama desktop app owns its own server and can restart it without the
+rem Vulkan settings below. Let this monitor own the server instead.
+set "START_GUI=0"
 set "LOG_FILE=%~dp0ollama-monitor.log"
 
 set "OLLAMA_EXE="
@@ -33,7 +38,7 @@ if not defined OLLAMA_EXE (
 )
 
 call :log "監控啟動：%OLLAMA_EXE%"
-call :ensure_gui
+call :stop_desktop_app
 
 set /a FAIL_COUNT=0
 
@@ -65,6 +70,7 @@ goto monitor_loop
 :restart_ollama
 call :log "正在重啟 Ollama。"
 taskkill /IM ollama.exe /F /T >nul 2>&1
+call :stop_desktop_app
 timeout /t 2 /nobreak >nul
 
 start "Ollama Server" /min "%OLLAMA_EXE%" serve
@@ -82,6 +88,10 @@ if errorlevel 1 (
     start "Ollama App" "%OLLAMA_APP_EXE%"
     call :log "已啟動 Ollama 監控視窗。"
 )
+goto :eof
+
+:stop_desktop_app
+taskkill /IM "ollama app.exe" /F /T >nul 2>&1
 goto :eof
 
 :log

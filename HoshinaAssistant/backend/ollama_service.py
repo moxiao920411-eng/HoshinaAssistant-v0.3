@@ -1,5 +1,6 @@
 import os
 import re
+import logging
 
 import httpx
 
@@ -12,7 +13,9 @@ OPENAI_COMPATIBLE_BASE_URL = os.getenv("OPENAI_COMPATIBLE_BASE_URL", "").rstrip(
 OPENAI_COMPATIBLE_API_KEY = os.getenv("OPENAI_COMPATIBLE_API_KEY", "")
 OPENAI_COMPATIBLE_MODEL = os.getenv("OPENAI_COMPATIBLE_MODEL", "openai/gpt-4.1-mini")
 MODEL_TIMEOUT_SECONDS = float(os.getenv("MODEL_TIMEOUT_SECONDS", "120"))
+OLLAMA_NUM_PREDICT = int(os.getenv("OLLAMA_NUM_PREDICT", "256"))
 MAX_HISTORY_MESSAGES = 40
+LOGGER = logging.getLogger(__name__)
 
 
 def _build_thinking_pattern() -> re.Pattern[str]:
@@ -108,16 +111,46 @@ class OllamaService:
         messages: list[dict[str, str]],
         model_override: str | None = None,
     ) -> str:
+        model = (model_override or "").strip() or OLLAMA_MODEL
         async with httpx.AsyncClient(timeout=self._timeout_seconds) as client:
             response = await client.post(
                 OLLAMA_CHAT_URL,
                 json={
-                    "model": (model_override or "").strip() or OLLAMA_MODEL,
+                    "model": model,
                     "messages": messages,
                     "stream": False,
                     "think": False,
+                    "options": {"num_predict": OLLAMA_NUM_PREDICT},
                 },
             )
+
+            # Android clients can retain an old model name in local settings.
+            # Recover from Ollama's model-not-found response by using the
+            # configured local default instead of surfacing a chat 502.
+            if response.status_code == 404 and model != OLLAMA_MODEL:
+                LOGGER.warning(
+                    "Ollama model %r was not found; retrying with default model %r",
+                    model,
+                    OLLAMA_MODEL,
+                )
+                response = await client.post(
+                    OLLAMA_CHAT_URL,
+                    json={
+                        "model": OLLAMA_MODEL,
+                        "messages": messages,
+                        "stream": False,
+                        "think": False,
+                        "options": {"num_predict": OLLAMA_NUM_PREDICT},
+                    },
+                )
+
+            if response.is_error:
+                LOGGER.error(
+                    "Ollama chat failed: status=%s model=%r body=%s",
+                    response.status_code,
+                    model,
+                    response.text[:1000],
+                )
             response.raise_for_status()
 
         data = response.json()
