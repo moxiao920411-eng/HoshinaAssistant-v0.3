@@ -104,4 +104,16 @@ class BaseAgent:
 
 
 def _needs_translation(text: str) -> bool:
-    return any(ord(char) > 127 for char in text)
+    # The local model understands CJK instructions directly. Translating the
+    # app's Chinese role prompt first adds a second model call and can return
+    # only hidden thinking tokens, which used to surface as a chat 502.
+    cjk_ranges = (
+        (0x3040, 0x30FF),  # Hiragana/Katakana
+        (0x3400, 0x9FFF),  # CJK Unified Ideographs
+        (0xAC00, 0xD7AF),  # Hangul
+    )
+    return any(
+        ord(char) > 127
+        and not any(start <= ord(char) <= end for start, end in cjk_ranges)
+        for char in text
+    )

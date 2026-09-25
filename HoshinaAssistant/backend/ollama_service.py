@@ -12,8 +12,8 @@ OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "deepseek-r1:8b")
 OPENAI_COMPATIBLE_BASE_URL = os.getenv("OPENAI_COMPATIBLE_BASE_URL", "").rstrip("/")
 OPENAI_COMPATIBLE_API_KEY = os.getenv("OPENAI_COMPATIBLE_API_KEY", "")
 OPENAI_COMPATIBLE_MODEL = os.getenv("OPENAI_COMPATIBLE_MODEL", "openai/gpt-4.1-mini")
-MODEL_TIMEOUT_SECONDS = float(os.getenv("MODEL_TIMEOUT_SECONDS", "120"))
-OLLAMA_NUM_PREDICT = int(os.getenv("OLLAMA_NUM_PREDICT", "256"))
+MODEL_TIMEOUT_SECONDS = float(os.getenv("MODEL_TIMEOUT_SECONDS", "180"))
+OLLAMA_NUM_PREDICT = int(os.getenv("OLLAMA_NUM_PREDICT", "384"))
 MAX_HISTORY_MESSAGES = 40
 LOGGER = logging.getLogger(__name__)
 
@@ -133,10 +133,11 @@ class OllamaService:
                     model,
                     OLLAMA_MODEL,
                 )
+                model = OLLAMA_MODEL
                 response = await client.post(
                     OLLAMA_CHAT_URL,
                     json={
-                        "model": OLLAMA_MODEL,
+                        "model": model,
                         "messages": messages,
                         "stream": False,
                         "think": False,
@@ -153,7 +154,31 @@ class OllamaService:
                 )
             response.raise_for_status()
 
-        data = response.json()
+            data = response.json()
+            message = data.get("message") or {}
+            content = (message.get("content") or "").strip()
+            if not content and message.get("thinking"):
+                # DeepSeek can spend the whole first generation budget in
+                # hidden thinking during a cold start. Retry once with more
+                # room so the API returns actual assistant content.
+                retry_predict = max(OLLAMA_NUM_PREDICT * 2, 512)
+                LOGGER.warning(
+                    "Ollama returned thinking without content; retrying with num_predict=%s",
+                    retry_predict,
+                )
+                response = await client.post(
+                    OLLAMA_CHAT_URL,
+                    json={
+                        "model": model,
+                        "messages": messages,
+                        "stream": False,
+                        "think": False,
+                        "options": {"num_predict": retry_predict},
+                    },
+                )
+                response.raise_for_status()
+                data = response.json()
+
         message = data.get("message") or {}
         return (message.get("content") or data.get("response") or "").strip()
 

@@ -35,7 +35,12 @@ if not exist "%MONITOR_BAT%" (
 )
 
 echo [1/2] Starting Ollama monitor...
-start "Hoshina Ollama Monitor" cmd.exe /d /c call "%MONITOR_BAT%"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "$running = Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'monitor-ollama\.bat' }; if ($running) { exit 1 } else { exit 0 }"
+if errorlevel 1 (
+  echo Ollama monitor is already running.
+) else (
+  start "Hoshina Ollama Monitor" cmd.exe /d /c call "%MONITOR_BAT%"
+)
 
 set "OLLAMA_READY=0"
 for /l %%N in (1,1,20) do (
