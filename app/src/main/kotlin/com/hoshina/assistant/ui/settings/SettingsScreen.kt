@@ -43,6 +43,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hoshina.assistant.R
 import com.hoshina.assistant.data.local.SettingsRepositoryImpl
@@ -306,6 +307,19 @@ fun SettingsScreen(
                 onValueChange = viewModel::onApiUrlChange,
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text(stringResource(R.string.settings_api_label)) },
+                singleLine = true,
+                enabled = !uiState.isSaving && !uiState.isDiscoveringBackend,
+            )
+            Text(
+                text = "外網連線：填入電腦外網啟動視窗的 HTTPS 網址與連線金鑰。區網搜尋只適用於本機 IP。",
+                style = MaterialTheme.typography.bodySmall,
+            )
+            OutlinedTextField(
+                value = uiState.apiKey,
+                onValueChange = viewModel::onApiKeyChange,
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("後端連線金鑰") },
+                visualTransformation = PasswordVisualTransformation(),
                 singleLine = true,
                 enabled = !uiState.isSaving && !uiState.isDiscoveringBackend,
             )

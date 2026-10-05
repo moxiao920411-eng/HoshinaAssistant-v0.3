@@ -16,6 +16,9 @@ import kotlinx.coroutines.flow.map
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 interface SettingsRepository {
+    val apiKey: Flow<String>
+    suspend fun getApiKey(): String
+    suspend fun setApiKey(key: String)
     val apiBaseUrl: Flow<String>
     val aiName: Flow<String>
     val aiModel: Flow<String>
@@ -53,6 +56,12 @@ interface SettingsRepository {
 class SettingsRepositoryImpl(
     private val context: Context,
 ) : SettingsRepository {
+
+    override val apiKey: Flow<String> = context.dataStore.data.map { it[API_KEY] ?: "" }
+    override suspend fun getApiKey(): String = apiKey.first()
+    override suspend fun setApiKey(key: String) {
+        context.dataStore.edit { it[API_KEY] = key.trim() }
+    }
 
     override val apiBaseUrl: Flow<String> = context.dataStore.data.map { preferences ->
         preferences[API_BASE_URL_KEY] ?: DEFAULT_API_BASE_URL
@@ -199,6 +208,7 @@ class SettingsRepositoryImpl(
         const val APP_LANGUAGE_EN = "en"
         const val APP_LANGUAGE_JA = "ja"
         const val DEFAULT_APP_LANGUAGE = APP_LANGUAGE_ZH
+        private val API_KEY = stringPreferencesKey("backend_api_key")
         private val API_BASE_URL_KEY = stringPreferencesKey("api_base_url")
         private val AI_NAME_KEY = stringPreferencesKey("ai_name")
         private val AI_MODEL_KEY = stringPreferencesKey("ai_model")

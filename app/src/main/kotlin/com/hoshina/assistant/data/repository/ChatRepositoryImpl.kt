@@ -129,15 +129,15 @@ class ChatRepositoryImpl(
         baseUrl: String,
         request: ChatRequestDto,
     ) = try {
-        RetrofitProvider.createApiService(baseUrl).sendChat(request)
+        RetrofitProvider.createApiService(baseUrl, settingsRepository.getApiKey()).sendChat(request)
     } catch (e: Exception) {
-        if (!e.isRecoverableNetworkError()) {
+        if (!e.isRecoverableNetworkError() || !BackendUrlResolver.isLocalBackend(baseUrl)) {
             throw e
         }
 
         val resolvedUrl = BackendUrlResolver.resolve(baseUrl) ?: throw e
         settingsRepository.setApiBaseUrl(resolvedUrl)
-        RetrofitProvider.createApiService(resolvedUrl).sendChat(request)
+        RetrofitProvider.createApiService(resolvedUrl, settingsRepository.getApiKey()).sendChat(request)
     }
 }
 

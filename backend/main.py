@@ -9,6 +9,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel, Field
+from remote_auth import ApiKeyMiddleware, get_api_key
 
 from agents import AgentCoordinator
 from agents.base import AgentContext
@@ -36,6 +37,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(ApiKeyMiddleware, api_key=get_api_key())
+
+
+@app.get("/health")
+async def health() -> dict:
+    # This only verifies the API process, not model readiness.
+    return {"service": "hoshina", "status": "ok"}
+
 
 ollama_service = OllamaService()
 agent_coordinator = AgentCoordinator(ollama_service)

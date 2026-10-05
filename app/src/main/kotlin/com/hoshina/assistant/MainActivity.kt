@@ -121,6 +121,7 @@ class MainActivity : ComponentActivity() {
                 }.onFailure {
                     startupError = "\u7121\u6cd5\u9023\u63a5\u5f8c\u7aef API\uff0c\u8acb\u78ba\u8a8d\u5df2\u555f\u52d5\u5f8c\u7aef BAT"
                     startupMessage = "\u5f8c\u7aef API \u9023\u63a5\u5931\u6557"
+                    isStartupCheckComplete = true
                 }
             }
 
@@ -181,6 +182,16 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
 
+                            startupError?.let {
+                                AlertDialog(
+                                    onDismissRequest = { startupError = null },
+                                    title = { Text("請設定後端連線") },
+                                    text = { Text("請在電腦啟動後端，再到設定填入 HTTPS 網址與連線金鑰。") },
+                                    confirmButton = {
+                                        TextButton(onClick = { startupError = null }) { Text("確定") }
+                                    },
+                                )
+                            }
                             updateInfo?.let { info ->
                                 UpdateDialog(
                                     info = info,
@@ -244,7 +255,7 @@ class MainActivity : ComponentActivity() {
 
             onStatusChange("\u5df2\u9023\u63a5\u5f8c\u7aef\uff0c\u6b63\u5728\u78ba\u8a8d\u7248\u672c")
             val currentVersionCode = currentVersionCode()
-            val remote = RetrofitProvider.createApiService(backendUrl).getAppVersion()
+            val remote = RetrofitProvider.createApiService(backendUrl, app.settingsRepository.getApiKey()).getAppVersion()
             val updateInfo = if (remote.latestVersionCode > currentVersionCode) {
                 AppUpdateInfo(
                     latestVersionCode = remote.latestVersionCode,

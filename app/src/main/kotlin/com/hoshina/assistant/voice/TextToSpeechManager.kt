@@ -31,6 +31,8 @@ class TextToSpeechManager(context: Context) {
     private val settingsRepository = (appContext as? HoshinaApplication)?.settingsRepository
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val httpClient = OkHttpClient.Builder()
+        .followRedirects(false)
+        .followSslRedirects(false)
         .connectTimeout(8, TimeUnit.SECONDS)
         .readTimeout(120, TimeUnit.SECONDS)
         .writeTimeout(30, TimeUnit.SECONDS)
@@ -83,7 +85,13 @@ class TextToSpeechManager(context: Context) {
     private suspend fun speakWithCloudTts(text: String, onDone: (() -> Unit)?): Boolean {
         val repository = settingsRepository ?: return false
         val configuredBaseUrl = repository.getApiBaseUrl()
-        val backendBaseUrl = BackendUrlResolver.resolve(configuredBaseUrl) ?: configuredBaseUrl
+        val backendBaseUrl = if (BackendUrlResolver.isLocalBackend(configuredBaseUrl)) {
+            BackendUrlResolver.resolve(configuredBaseUrl) ?: configuredBaseUrl
+        } else configuredBaseUrl
+        val apiKey = repository.getApiKey()
+        require(apiKey.isBlank() || backendBaseUrl.startsWith("https://") || BackendUrlResolver.isLocalBackend(backendBaseUrl)) {
+            "External connections with an API key require HTTPS."
+        }
         val ttsUrl = RetrofitProvider.normalizeBaseUrl(backendBaseUrl) + "tts"
         val audioFile = withContext(Dispatchers.IO) {
             val requestBody = JSONObject()
@@ -92,6 +100,7 @@ class TextToSpeechManager(context: Context) {
                 .toRequestBody("application/json; charset=utf-8".toMediaType())
             val request = Request.Builder()
                 .url(ttsUrl)
+                .apply { if (apiKey.isNotBlank()) header("X-Hoshina-Key", apiKey) }
                 .post(requestBody)
                 .build()
             httpClient.newCall(request).execute().use { response ->

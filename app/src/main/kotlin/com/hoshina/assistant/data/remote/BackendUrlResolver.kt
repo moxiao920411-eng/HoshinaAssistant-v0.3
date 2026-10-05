@@ -7,13 +7,15 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.HttpUrl.Companion.toHttpUrl
+import org.json.JSONObject
 import java.net.Inet4Address
 import java.net.NetworkInterface
 import java.util.concurrent.TimeUnit
 
 object BackendUrlResolver {
     private const val BACKEND_PORT = 8000
-    private const val HEALTH_PATH = "agents"
+    private const val HEALTH_PATH = "health"
     private const val PROBE_TIMEOUT_MS = 450L
     private const val SCAN_BATCH_SIZE = 32
 
@@ -25,6 +27,10 @@ object BackendUrlResolver {
         .build()
 
     suspend fun resolve(currentBaseUrl: String): String? = withContext(Dispatchers.IO) {
+        // Public URLs are explicit configuration. Never replace one with a LAN address.
+        if (!isLocalBackend(currentBaseUrl)) {
+            return@withContext currentBaseUrl.takeIf { canReachBackend(it, remote = true) }
+        }
         val directCandidates = buildDirectCandidates(currentBaseUrl)
         directCandidates.firstOrNull { canReachBackend(it) }?.let { return@withContext it }
 
@@ -88,7 +94,18 @@ object BackendUrlResolver {
             .distinct()
     }
 
-    private fun canReachBackend(baseUrl: String): Boolean {
+    fun isLocalBackend(baseUrl: String): Boolean {
+        val host = runCatching { RetrofitProvider.normalizeBaseUrl(baseUrl).toHttpUrl().host }
+            .getOrNull() ?: return false
+        if (host == "localhost" || host == "::1") return true
+        val parts = host.split(".").map { it.toIntOrNull() ?: return false }
+        if (parts.size != 4 || parts.any { it !in 0..255 }) return false
+        return parts[0] == 10 || parts[0] == 127 ||
+            (parts[0] == 192 && parts[1] == 168) ||
+            (parts[0] == 172 && parts[1] in 16..31)
+    }
+
+    private fun canReachBackend(baseUrl: String, remote: Boolean = false): Boolean {
         val normalized = runCatching { RetrofitProvider.normalizeBaseUrl(baseUrl) }.getOrNull()
             ?: return false
         val request = Request.Builder()
@@ -97,7 +114,14 @@ object BackendUrlResolver {
             .build()
 
         return runCatching {
-            probeClient.newCall(request).execute().use { response -> response.isSuccessful }
+            val client = if (remote) probeClient.newBuilder()
+                .connectTimeout(8, TimeUnit.SECONDS)
+                .readTimeout(8, TimeUnit.SECONDS)
+                .callTimeout(10, TimeUnit.SECONDS).build() else probeClient
+            client.newCall(request).execute().use { response ->
+                response.isSuccessful &&
+                    JSONObject(response.body?.string().orEmpty()).optString("service") == "hoshina"
+            }
         }.getOrDefault(false)
     }
 
