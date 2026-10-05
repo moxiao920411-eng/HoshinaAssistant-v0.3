@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 
 data class SettingsUiState(
     val apiUrl: String = "",
+    val apiKey: String = "",
     val aiName: String = "",
     val aiModel: String = "",
     val rolePrompt: String = "",
@@ -47,6 +48,7 @@ class SettingsViewModel(
     init {
         viewModelScope.launch {
             val url = settingsRepository.getApiBaseUrl()
+            val apiKey = settingsRepository.getApiKey()
             val aiName = settingsRepository.getAiName()
             val aiModel = settingsRepository.getAiModel()
             val rolePrompt = settingsRepository.getRolePrompt()
@@ -64,6 +66,7 @@ class SettingsViewModel(
             _uiState.update {
                 it.copy(
                     apiUrl = url,
+                    apiKey = apiKey,
                     aiName = aiName,
                     aiModel = aiModel,
                     rolePrompt = rolePrompt,
@@ -81,6 +84,10 @@ class SettingsViewModel(
                 )
             }
         }
+    }
+
+    fun onApiKeyChange(key: String) {
+        _uiState.update { it.copy(apiKey = key, savedMessage = null, error = null) }
     }
 
     fun onApiUrlChange(url: String) {
@@ -242,6 +249,10 @@ class SettingsViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true, error = null, savedMessage = null) }
             try {
+                val normalizedUrl = com.hoshina.assistant.data.remote.RetrofitProvider.normalizeBaseUrl(url)
+                require(BackendUrlResolver.isLocalBackend(normalizedUrl) || normalizedUrl.startsWith("https://")) {
+                    "外網連線請輸入完整的 https:// 網址。"
+                }
                 val debugMin = _uiState.value.companionDebugMinMinutes.toIntOrNull() ?: 0
                 val debugMax = _uiState.value.companionDebugMaxMinutes.toIntOrNull() ?: 0
                 if (debugMin > 0 && debugMax > 0 && debugMin > debugMax) {
@@ -257,6 +268,7 @@ class SettingsViewModel(
                 }
 
                 settingsRepository.setApiBaseUrl(url)
+                settingsRepository.setApiKey(_uiState.value.apiKey)
                 settingsRepository.setAiName(_uiState.value.aiName)
                 settingsRepository.setAiModel(_uiState.value.aiModel)
                 settingsRepository.setRolePrompt(_uiState.value.rolePrompt)

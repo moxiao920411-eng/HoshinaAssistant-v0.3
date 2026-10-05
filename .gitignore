@@ -10,3 +10,6 @@
 app/build/
 backend/.venv/
 backend/__pycache__/
+
+# Local remote-access credentials (never commit)
+backend/.remote/
